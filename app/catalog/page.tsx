@@ -1,7 +1,6 @@
 import { createClient } from 'next-sanity'
 import imageUrlBuilder from '@sanity/image-url'
 import Link from 'next/link'
-import { getSettings } from '../lib/settings'
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
@@ -9,11 +8,17 @@ const client = createClient({
   apiVersion: '2026-07-20',
   useCdn: false,
 })
-
 const builder = imageUrlBuilder(client)
 function urlFor(source: any) {
   return builder.image(source).width(600).url()
 }
+
+const CATEGORY_FILTERS = [
+  { label: 'SOAPS', value: 'Мыло' },
+  { label: 'Podarci', value: 'Подарки' },
+  { label: 'Aroma', value: 'Ароматические' },
+  { label: 'Basket', value: 'Basket' },
+]
 
 export default async function CatalogPage({
   searchParams,
@@ -21,23 +26,14 @@ export default async function CatalogPage({
   searchParams: Promise<{ category?: string }>
 }) {
   const { category } = await searchParams
-  const settings = await getSettings()
 
-  const rawCategories = settings?.categories || []
-  const categoryTitles = rawCategories.map((cat: any) =>
-    typeof cat === 'string' ? cat : cat.title
-  )
-  const categories = ['Sve', ...categoryTitles]
-
-  const query = category && category !== 'Sve'
+  const query = category
     ? `*[_type == "product" && category == "${category}"]`
     : `*[_type == "product"]`
-
   const products = await client.fetch(query)
 
   return (
     <main className="max-w-6xl mx-auto px-4 md:px-8 py-10 md:py-16">
-
       {/* Заголовок */}
       <h1 className="text-center mb-8 md:mb-12" style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300 }} >
         <span className="text-3xl md:text-5xl">Katalog</span>
@@ -45,17 +41,25 @@ export default async function CatalogPage({
 
       {/* Фильтры */}
       <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-10 md:mb-16 px-2">
-        {categories.map((cat) => (
-          <Link key={cat} href={cat === 'Sve' ? '/catalog' : `/catalog?category=${cat}`}>
+        <Link href="/catalog">
+          <button
+            className="text-xs md:text-sm tracking-widest uppercase pb-1 transition-all hover:opacity-60"
+            style={{
+              borderBottom: !category ? '1px solid var(--foreground)' : '1px solid transparent',
+            }}
+          >
+            Sve
+          </button>
+        </Link>
+        {CATEGORY_FILTERS.map((cat) => (
+          <Link key={cat.value} href={`/catalog?category=${cat.value}`}>
             <button
               className="text-xs md:text-sm tracking-widest uppercase pb-1 transition-all hover:opacity-60"
               style={{
-                borderBottom: (cat === 'Sve' && !category) || cat === category
-                  ? '1px solid var(--foreground)'
-                  : '1px solid transparent',
+                borderBottom: cat.value === category ? '1px solid var(--foreground)' : '1px solid transparent',
               }}
             >
-              {cat}
+              {cat.label}
             </button>
           </Link>
         ))}
@@ -94,7 +98,6 @@ export default async function CatalogPage({
           ))}
         </div>
       )}
-
     </main>
   )
 }
