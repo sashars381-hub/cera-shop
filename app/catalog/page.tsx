@@ -13,11 +13,12 @@ function urlFor(source: any) {
   return builder.image(source).width(600).url()
 }
 
+// label — то что видно в URL и на кнопке, dbValue — реальное название категории в базе
 const CATEGORY_FILTERS = [
-  { label: 'SOAPS', value: 'Мыло' },
-  { label: 'Podarci', value: 'Подарки' },
-  { label: 'Aroma', value: 'Ароматические' },
-  { label: 'Basket', value: 'Basket' },
+  { label: 'SOAPS', dbValue: 'SOAPS' },
+  { label: 'Podarci', dbValue: 'Podarci' },
+  { label: 'Aroma', dbValue: 'Aroma' },
+  { label: 'Basket', dbValue: 'Basket' },
 ]
 
 export default async function CatalogPage({
@@ -27,8 +28,12 @@ export default async function CatalogPage({
 }) {
   const { category } = await searchParams
 
-  const query = category
-    ? `*[_type == "product" && category == "${category}"]`
+  // находим реальное значение категории в базе по label из URL
+  const matched = CATEGORY_FILTERS.find((c) => c.label === category)
+  const dbCategory = matched?.dbValue
+
+  const query = dbCategory
+    ? `*[_type == "product" && category == "${dbCategory}"]`
     : `*[_type == "product"]`
   const products = await client.fetch(query)
 
@@ -52,11 +57,11 @@ export default async function CatalogPage({
           </button>
         </Link>
         {CATEGORY_FILTERS.map((cat) => (
-          <Link key={cat.value} href={`/catalog?category=${cat.value}`}>
+          <Link key={cat.label} href={`/catalog?category=${cat.label}`}>
             <button
               className="text-xs md:text-sm tracking-widest uppercase pb-1 transition-all hover:opacity-60"
               style={{
-                borderBottom: cat.value === category ? '1px solid var(--foreground)' : '1px solid transparent',
+                borderBottom: cat.label === category ? '1px solid var(--foreground)' : '1px solid transparent',
               }}
             >
               {cat.label}
