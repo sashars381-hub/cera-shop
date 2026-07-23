@@ -1,65 +1,208 @@
-import Image from "next/image";
+import { createClient } from 'next-sanity'
+import imageUrlBuilder from '@sanity/image-url'
+import Link from 'next/link'
+import { getSettings } from './lib/settings'
+import AddToCart from './components/AddToCart'
 
-export default function Home() {
+const client = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+  apiVersion: '2026-07-20',
+  useCdn: false,
+})
+
+const builder = imageUrlBuilder(client)
+
+function urlFor(source: any) {
+  return builder.image(source).width(800).height(1000).fit('fillmax').bg('FAF8F5').url()
+}
+
+function urlForCategory(source: any) {
+  return builder.image(source).width(1200).url()
+}
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  const { category } = await searchParams
+
+  const query = category
+    ? `*[_type == "product" && category == "${category}"]`
+    : `*[_type == "product"]`
+
+  const products = await client.fetch(query)
+  const settings = await getSettings()
+
+  const categories = settings?.categories || []
+  const siteName = settings?.siteName || 'Cèra'
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main>
+
+      {/* Категории */}
+      {categories.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 md:px-8 pt-0 pb-8 md:pb-12">
+
+          <div
+            className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-2"
+            style={{ gridTemplateRows: 'auto' }}
+          >
+
+            {/* Большой блок слева — первая категория */}
+            {categories[0] && (() => {
+              const cat = categories[0]
+              const catTitle = typeof cat === 'string' ? cat : cat.title
+              const catImage = typeof cat === 'object' && cat.image ? urlForCategory(cat.image) : null
+              return (
+                <Link href={`/?category=${catTitle}`} className="md:row-span-2">
+                  <div className="relative overflow-hidden group cursor-pointer h-[280px] md:h-[500px]">
+                    {catImage && (
+                      <img
+                        src={catImage}
+                        alt={catTitle}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        style={{ objectPosition: 'left center' }}
+                      />
+                    )}
+                    <div className="absolute inset-0" style={{ backgroundColor: catImage ? 'rgba(0,0,0,0.25)' : 'var(--muted)' }} />
+                    <div className="absolute bottom-0 left-0 p-5 md:p-8">
+                      <p className="text-xs tracking-widest uppercase mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Kolekcija</p>
+                      <span style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, color: catImage ? 'white' : 'var(--foreground)' }} className="text-2xl md:text-4xl">
+                        {catTitle}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })()}
+
+            {/* Маленький блок сверху справа — вторая категория */}
+            {categories[1] && (() => {
+              const cat = categories[1]
+              const catTitle = typeof cat === 'string' ? cat : cat.title
+              const catImage = typeof cat === 'object' && cat.image ? urlForCategory(cat.image) : null
+              return (
+                <Link href={`/?category=${catTitle}`}>
+                  <div className="relative overflow-hidden group cursor-pointer h-[180px] md:h-[246px]">
+                    {catImage && (
+                      <img
+                        src={catImage}
+                        alt={catTitle}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        style={{ objectPosition: 'center center' }}
+                      />
+                    )}
+                    <div className="absolute inset-0" style={{ backgroundColor: catImage ? 'rgba(0,0,0,0.25)' : 'var(--muted)' }} />
+                    <div className="absolute bottom-0 left-0 p-4 md:p-6">
+                      <p className="text-xs tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Kolekcija</p>
+                      <span style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, color: catImage ? 'white' : 'var(--foreground)' }} className="text-lg md:text-2xl">
+                        {catTitle}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })()}
+
+            {/* Маленький блок снизу справа — третья категория */}
+            {categories[2] && (() => {
+              const cat = categories[2]
+              const catTitle = typeof cat === 'string' ? cat : cat.title
+              const catImage = typeof cat === 'object' && cat.image ? urlForCategory(cat.image) : null
+              return (
+                <Link href={`/?category=${catTitle}`}>
+                  <div className="relative overflow-hidden group cursor-pointer h-[180px] md:h-[246px]">
+                    {catImage && (
+                      <img
+                        src={catImage}
+                        alt={catTitle}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        style={{ objectPosition: 'center center' }}
+                      />
+                    )}
+                    <div className="absolute inset-0" style={{ backgroundColor: catImage ? 'rgba(0,0,0,0.25)' : 'var(--muted)' }} />
+                    <div className="absolute bottom-0 left-0 p-4 md:p-6">
+                      <p className="text-xs tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Kolekcija</p>
+                      <span style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, color: catImage ? 'white' : 'var(--foreground)' }} className="text-lg md:text-2xl">
+                        {catTitle}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })()}
+
+          </div>
+        </section>
+      )}
+
+      {/* Активный фильтр */}
+      {category && (
+        <div className="max-w-6xl mx-auto px-4 md:px-8 mb-6 md:mb-8 flex items-center justify-center gap-4">
+          <p className="text-xs md:text-sm tracking-widest uppercase" style={{ color: 'var(--text-light)' }}>
+            Prikazano: {category}
           </p>
+          <Link href="/" className="text-xs md:text-sm tracking-widest uppercase underline hover:opacity-60 transition-opacity">
+            Poništi
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      )}
+
+      {/* Товары */}
+      <section className="max-w-6xl mx-auto px-4 md:px-8 pb-16 md:pb-24">
+        {products.length === 0 ? (
+          <p className="text-center" style={{ color: 'var(--text-light)' }}>
+            Proizvodi nisu pronađeni
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:gap-8">
+            {products.map((product: any) => (
+              <div key={product._id} className="group">
+                <Link href={`/product/${product._id}`}>
+                  <div className="overflow-hidden mb-3 md:mb-4" style={{ backgroundColor: 'var(--muted)', aspectRatio: '3/4' }}>
+                    {product.image && (
+                      <img
+                        src={urlFor(product.image)}
+                        alt={product.name}
+                        className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                        style={{ objectFit: 'cover', objectPosition: 'center' }}
+                      />
+                    )}
+                  </div>
+                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300 }} className="text-base md:text-xl">
+                    {product.name}
+                  </h3>
+                  <p className="mt-1 text-xs md:text-sm" style={{ color: 'var(--text-light)' }}>
+                    {product.category}
+                  </p>
+                </Link>
+
+                {/* Цена и кнопка */}
+                <div className="flex items-center justify-between mt-2 md:mt-3 gap-2">
+                  <p className="text-sm md:text-base">{product.price} RSD</p>
+                  <AddToCart product={{ ...product, imageUrl: product.image ? urlFor(product.image) : null }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t py-10 md:py-12 px-4 md:px-8 text-center text-sm tracking-widest" style={{ borderColor: 'var(--muted)', color: 'var(--text-light)' }}>
+        <p className="mb-4" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', color: 'var(--foreground)' }}>
+          {siteName}
+        </p>
+        <div className="flex flex-wrap justify-center gap-4 md:gap-8 uppercase mb-4 text-xs md:text-sm">
+          <Link href="/contacts" className="hover:opacity-60 transition-opacity">Kontakt</Link>
+          <Link href="/dostava" className="hover:opacity-60 transition-opacity">Dostava</Link>
+          <Link href="/uslovi" className="hover:opacity-60 transition-opacity">Uslovi</Link>
         </div>
-      </main>
-    </div>
-  );
+        <p className="text-xs md:text-sm">© 2026 {siteName}. Sva prava zadržana.</p>
+      </footer>
+
+    </main>
+  )
 }
