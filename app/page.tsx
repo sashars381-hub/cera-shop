@@ -84,7 +84,7 @@ export default async function Home({
               const catTitle = typeof cat === 'string' ? cat : cat.title
               const catImage = typeof cat === 'object' && cat.image ? urlForCategory(cat.image) : null
               return (
-                <Link href={`/?category=${catTitle}`}>
+                <Link href={`/?category=SOAPS`}>
                   <div className="relative overflow-hidden group cursor-pointer h-[180px] md:h-[246px]">
                     {catImage && (
                       <img
