@@ -100,8 +100,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
       {/* Отзывы */}
       {reviews.length > 0 && (
-        <section className="mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {reviews.map((review: any) => (
+<section className="mt-16 md:mt-24 flex flex-col gap-6 md:gap-8 max-w-2xl mx-auto">
+  {reviews.map((review: any) => (
             <div key={review._id} className="flex flex-col gap-4 p-6 md:p-8" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--muted)' }}>
 
               <div className="flex items-center gap-3">
