@@ -11,13 +11,14 @@ const client = createClient({
 
 export async function POST(req: Request) {
   const body = await req.json()
-  const { type, productName, total } = body
+  const { type, productName, total, source } = body
 
   await client.create({
     _type: 'analyticsEvent',
     type,
     productName: productName || null,
     total: total || null,
+    source: source || null,
     createdAt: new Date().toISOString(),
   })
 
