@@ -35,6 +35,9 @@ export default defineConfig({
               .title('⭐ Отзывы')
               .child(S.documentTypeList('review').title('Отзывы')),
             S.listItem()
+              .title('🖼 Galerija kupaca')
+              .child(S.documentTypeList('gallery').title('Galerija kupaca')),
+            S.listItem()
               .title('⚙️ Настройки сайта')
               .child(S.documentTypeList('siteSettings').title('Настройки')),
             S.listItem()
