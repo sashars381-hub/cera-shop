@@ -19,6 +19,7 @@ export default function Dashboard() {
     emailClicks: 0,
     whatsappClicks: 0,
   })
+  const [sources, setSources] = useState<{ name: string; count: number }[]>([])
   const [recentOrders, setRecentOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -35,6 +36,16 @@ export default function Dashboard() {
       const whatsappClicks = events.filter((e: any) => e.type === 'whatsapp_click')
       const revenue = orders.reduce((sum: number, e: any) => sum + (e.total || 0), 0)
 
+      // Группируем заходы по источникам
+      const sourceCounts: Record<string, number> = {}
+      pageViews.forEach((e: any) => {
+        const src = e.source || 'Nepoznato'
+        sourceCounts[src] = (sourceCounts[src] || 0) + 1
+      })
+      const sourcesArray = Object.entries(sourceCounts)
+        .map(([name, count]) => ({ name, count: count as number }))
+        .sort((a, b) => b.count - a.count)
+
       setStats({
         pageViews: pageViews.length,
         productViews: productViews.length,
@@ -46,6 +57,7 @@ export default function Dashboard() {
         whatsappClicks: whatsappClicks.length,
       })
 
+      setSources(sourcesArray)
       setRecentOrders(orders.slice(-5).reverse())
       setLoading(false)
     }
@@ -85,6 +97,8 @@ export default function Dashboard() {
     marginBottom: '16px',
     marginTop: '40px',
   }
+
+  const maxSourceCount = sources.length > 0 ? sources[0].count : 1
 
   if (loading) {
     return (
@@ -150,6 +164,40 @@ export default function Dashboard() {
             {stats.addToCart > 0 ? Math.round((stats.orders / stats.addToCart) * 100) : 0}%
           </p>
         </div>
+      </div>
+
+      {/* Источники трафика */}
+      <p style={sectionTitleStyle}>Odakle dolaze posetioci</p>
+      <div style={{ border: '1px solid #E8E0D5', borderRadius: '4px', overflow: 'hidden' }}>
+        {sources.length === 0 ? (
+          <div style={{ padding: '24px', color: '#8A7F74', fontSize: '13px' }}>
+            Nema podataka još
+          </div>
+        ) : (
+          sources.map((src, i) => (
+            <div
+              key={src.name}
+              style={{
+                padding: '16px 24px',
+                borderBottom: i < sources.length - 1 ? '1px solid #E8E0D5' : 'none',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 500 }}>{src.name}</span>
+                <span style={{ fontSize: '14px', color: '#8A7F74' }}>{src.count}</span>
+              </div>
+              <div style={{ backgroundColor: '#E8E0D5', borderRadius: '2px', height: '6px', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    width: `${(src.count / maxSourceCount) * 100}%`,
+                    backgroundColor: '#1a1a1a',
+                    height: '100%',
+                  }}
+                />
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Контакты */}
