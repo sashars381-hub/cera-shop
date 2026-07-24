@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import './globals.css'
 import Header from './components/Header'
 import { getSettings } from './lib/settings'
@@ -29,7 +30,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             }}
           />
         )}
-
         {settings?.googleAnalyticsId && (
           <>
             <script async src={"https://www.googletagmanager.com/gtag/js?id=" + settings.googleAnalyticsId} />
@@ -40,28 +40,28 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             />
           </>
         )}
-
         {settings?.customHeadCode && (
           <div dangerouslySetInnerHTML={{ __html: settings.customHeadCode }} />
         )}
-
         <style>{":root { --background: " + bg + "; --accent: " + accent + "; }"}</style>
-<script
-  type="text/javascript"
-  dangerouslySetInnerHTML={{
-    __html: `
-      (function(c,l,a,r,i,t,y){
-          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", "xrch5iyl3u");
-    `,
-  }}
-/>
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(c,l,a,r,i,t,y){
+                  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+              })(window, document, "clarity", "script", "xrch5iyl3u");
+            `,
+          }}
+        />
       </head>
       <body>
         <Header settings={settings} />
-        <PageViewTracker />
+        <Suspense fallback={null}>
+          <PageViewTracker />
+        </Suspense>
         {children}
         <Analytics />
         <WhatsAppButton />
