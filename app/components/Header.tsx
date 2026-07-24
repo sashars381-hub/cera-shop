@@ -54,6 +54,9 @@ export default function Header({ settings }: { settings: any }) {
               </svg>
               Pokloni
             </Link>
+            <Link href="/poklon-konstruktor" className="text-sm tracking-widest uppercase hover:opacity-60 transition-opacity">
+  Napravi set
+</Link>
             <Link href="/#gallery" className="text-sm tracking-widest uppercase hover:opacity-60 transition-opacity">
               Kupci
             </Link>
