@@ -26,18 +26,21 @@ export default defineConfig({
               ),
             S.divider(),
             S.listItem()
+              .title('🛒 Zakazi')
+              .child(S.documentTypeList('order').title('Zakazi').defaultOrdering([{ field: 'createdAt', direction: 'desc' }])),
+            S.listItem()
               .title('🕯 Товары')
               .child(S.documentTypeList('product').title('Товары')),
-              S.listItem()
-  .title('⭐ Отзывы')
-  .child(S.documentTypeList('review').title('Отзывы')),
+            S.listItem()
+              .title('⭐ Отзывы')
+              .child(S.documentTypeList('review').title('Отзывы')),
             S.listItem()
               .title('⚙️ Настройки сайта')
               .child(S.documentTypeList('siteSettings').title('Настройки')),
             S.listItem()
               .title('📈 События')
               .child(S.documentTypeList('analyticsEvent').title('События')),
-              S.listItem()
+            S.listItem()
               .title('🎨 Темы')
               .child(S.documentTypeList('theme').title('Темы')),
           ]),
