@@ -1,5 +1,6 @@
 import { createClient } from 'next-sanity'
 import imageUrlBuilder from '@sanity/image-url'
+import Link from 'next/link'
 import AddToCart from '../../components/AddToCart'
 import ProductViewTracker from '../../components/ProductViewTracker'
 
@@ -19,6 +20,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const { id } = await params
   const product = await client.fetch(`*[_type == "product" && _id == "${id}"][0]`)
   const reviews = await client.fetch(`*[_type == "review"] | order(_createdAt desc)`)
+  const relatedProducts = await client.fetch(
+    `*[_type == "product" && category == "${product?.category}" && _id != "${id}"][0...4]`
+  )
 
   if (!product) {
     return <p className="text-center py-32">Proizvod nije pronađen</p>
@@ -61,6 +65,38 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </div>
 
       </div>
+
+      {/* Похожие товары */}
+      {relatedProducts.length > 0 && (
+        <section className="mt-16 md:mt-24">
+          <p className="text-sm tracking-widest uppercase text-center mb-8 md:mb-12" style={{ color: 'var(--text-light)' }}>
+            Možda vam se svidi
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {relatedProducts.map((related: any) => (
+              <Link href={`/product/${related._id}`} key={related._id}>
+                <div className="group cursor-pointer">
+                  <div className="overflow-hidden mb-3" style={{ backgroundColor: 'var(--muted)', aspectRatio: '3/4' }}>
+                    {related.image && (
+                      <img
+                        src={urlFor(related.image)}
+                        alt={related.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    )}
+                  </div>
+                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300 }} className="text-sm md:text-lg">
+                    {related.name}
+                  </h3>
+                  <p className="mt-1 text-xs md:text-sm">
+                    {related.price} RSD
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Отзывы */}
       {reviews.length > 0 && (
