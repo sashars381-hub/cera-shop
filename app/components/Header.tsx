@@ -31,7 +31,8 @@ export default function Header({ settings }: { settings: any }) {
   return (
     <>
       <div style={{ backgroundColor: 'var(--foreground)', color: 'var(--background)' }} className="text-center py-2 text-[10px] md:text-xs tracking-widest uppercase px-4">
-      Besplatna dostava za Beograd      </div>
+        Besplatna dostava za Beograd
+      </div>
       <header
         style={{
           backgroundColor: 'var(--background)',
@@ -52,6 +53,9 @@ export default function Header({ settings }: { settings: any }) {
                 <path d="M3 8h18M12 8v13M12 8c-1.5-3-4-5-6-3.5S3 8 3 8M12 8c1.5-3 4-5 6-3.5S21 8 21 8" />
               </svg>
               Pokloni
+            </Link>
+            <Link href="/#gallery" className="text-sm tracking-widest uppercase hover:opacity-60 transition-opacity">
+              Kupci
             </Link>
           </nav>
 
@@ -110,6 +114,9 @@ export default function Header({ settings }: { settings: any }) {
             </Link>
             <Link href="/?category=Podarci" onClick={() => setMenuOpen(false)} className="text-lg tracking-widest uppercase">
               Pokloni
+            </Link>
+            <Link href="/#gallery" onClick={() => setMenuOpen(false)} className="text-lg tracking-widest uppercase">
+              Kupci
             </Link>
             <Link href="/contacts" onClick={() => setMenuOpen(false)} className="text-lg tracking-widest uppercase">
               Kontakt
