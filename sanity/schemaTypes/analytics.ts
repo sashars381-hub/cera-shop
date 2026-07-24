@@ -24,5 +24,10 @@ export const analyticsEvent = {
         title: 'Дата',
         type: 'datetime',
       },
+        {
+  name: 'source',
+  title: 'Izvor saobraćaja',
+  type: 'string',
+},
     ],
   }
