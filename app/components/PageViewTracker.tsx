@@ -21,10 +21,34 @@ export default function PageViewTracker() {
     if (!hasVisited) {
       sessionStorage.setItem('cera-visited', 'true')
 
+      // Определяем источник трафика
+      const utmSource = searchParams.get('utm_source')
+      const referrer = typeof document !== 'undefined' ? document.referrer : ''
+
+      let source = 'Direktan pristup'
+
+      if (utmSource) {
+        source = utmSource
+      } else if (referrer) {
+        try {
+          const referrerHost = new URL(referrer).hostname
+          if (referrerHost.includes('google')) source = 'Google'
+          else if (referrerHost.includes('facebook')) source = 'Facebook'
+          else if (referrerHost.includes('instagram')) source = 'Instagram'
+          else if (referrerHost.includes('olx')) source = 'OLX'
+          else if (referrerHost.includes('kupujemprodajem')) source = 'Kupujem Prodajem'
+          else if (referrerHost.includes('pinterest')) source = 'Pinterest'
+          else if (referrerHost.includes('tiktok')) source = 'TikTok'
+          else source = referrerHost
+        } catch {
+          source = 'Nepoznato'
+        }
+      }
+
       fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'page_view', productName: pathname }),
+        body: JSON.stringify({ type: 'page_view', productName: pathname, source }),
       })
     }
   }, [pathname, searchParams])
