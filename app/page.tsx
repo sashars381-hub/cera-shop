@@ -198,10 +198,10 @@ export default async function Home({
 
       {/* Галерея реальных покупок — Pinterest-style */}
       {galleryImages.length > 0 && (
-        <section className="max-w-6xl mx-auto px-4 md:px-8 pb-16 md:pb-24">
-          <p className="text-sm tracking-widest uppercase text-center mb-8 md:mb-12" style={{ color: 'var(--text-light)' }}>
-            Od naših kupaca
-          </p>
+<section id="gallery" className="max-w-6xl mx-auto px-4 md:px-8 pb-16 md:pb-24">
+  <p className="text-sm tracking-widest uppercase text-center mb-8 md:mb-12" style={{ color: 'var(--text-light)' }}>
+    Od naših kupaca
+  </p>
 
           <div
             style={{
