@@ -21,6 +21,10 @@ function urlForCategory(source: any) {
   return builder.image(source).width(1200).url()
 }
 
+function urlForGallery(source: any) {
+  return builder.image(source).width(600).url()
+}
+
 export default async function Home({
   searchParams,
 }: {
@@ -34,9 +38,11 @@ export default async function Home({
 
   const products = await client.fetch(query)
   const settings = await getSettings()
+  const galleryDoc = await client.fetch(`*[_type == "gallery"][0]`)
 
   const categories = settings?.categories || []
   const siteName = settings?.siteName || 'Cèra'
+  const galleryImages = galleryDoc?.images || []
 
   return (
     <main>
@@ -189,6 +195,51 @@ export default async function Home({
           </div>
         )}
       </section>
+
+      {/* Галерея реальных покупок — Pinterest-style */}
+      {galleryImages.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 md:px-8 pb-16 md:pb-24">
+          <p className="text-sm tracking-widest uppercase text-center mb-8 md:mb-12" style={{ color: 'var(--text-light)' }}>
+            Od naših kupaca
+          </p>
+
+          <div
+            style={{
+              columnCount: 2,
+              columnGap: '12px',
+            }}
+            className="md:!hidden"
+          >
+            {galleryImages.map((img: any, i: number) => (
+              <div key={i} style={{ breakInside: 'avoid', marginBottom: '12px' }} className="overflow-hidden">
+                <img
+                  src={urlForGallery(img)}
+                  alt={`Kupac ${i + 1}`}
+                  className="w-full h-auto object-cover hover:opacity-90 transition-opacity"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              columnCount: 4,
+              columnGap: '16px',
+            }}
+            className="hidden md:block"
+          >
+            {galleryImages.map((img: any, i: number) => (
+              <div key={i} style={{ breakInside: 'avoid', marginBottom: '16px' }} className="overflow-hidden">
+                <img
+                  src={urlForGallery(img)}
+                  alt={`Kupac ${i + 1}`}
+                  className="w-full h-auto object-cover hover:opacity-90 transition-opacity duration-300"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t py-10 md:py-12 px-4 md:px-8 text-center text-sm tracking-widest" style={{ borderColor: 'var(--muted)', color: 'var(--text-light)' }}>
